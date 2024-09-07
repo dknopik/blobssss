@@ -66,9 +66,6 @@ async fn main() -> Result<()> {
 
     let distribute_each = balance / U256::from(args.max + 1);
 
-    let sidecar: SidecarBuilder<SimpleCoder> = SidecarBuilder::from_slice(b"spam");
-    let sidecar = sidecar.build()?;
-
     let mut waiting = vec![];
     for wallet in &child_wallets {
         println!("funding {distribute_each}wei to {}", addr_of(wallet));
@@ -99,6 +96,10 @@ async fn main() -> Result<()> {
         let num = thread_rng().gen_range(args.min..=args.max);
         println!("sending {num} tx");
         for idx in 0..num {
+            let sidecar: SidecarBuilder<SimpleCoder> =
+                SidecarBuilder::from_slice(&random::<[u8; 8]>());
+            let sidecar = sidecar.build()?;
+
             let provider = providers.iter().choose(&mut thread_rng()).unwrap();
             let wallet = child_wallets.get(idx as usize).unwrap();
             let nonce = match provider.get_transaction_count(addr_of(wallet)).await {
